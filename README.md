@@ -1,4 +1,4 @@
-# Assignment 3 - Course Review System
+# Assignment 4 - Course Review System With Auth
 
 - technologies: TypeScript, Node.js, Express.js, MongoDB, Mongoose, Zod
 
@@ -10,4 +10,4 @@
 
 ### live link
 
-- https://course-review-system-server.vercel.app
+- https://course-review-system-with-auth.vercel.app

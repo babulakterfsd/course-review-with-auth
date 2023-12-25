@@ -1,7 +1,7 @@
 {
-  "name": "course-review-system ",
+  "name": "course-review-system-with-auth",
   "version": "1.0.0",
-  "description": "create apis for course-review-system",
+  "description": "create apis for course-review-system-with-auth",
   "main": "index.js",
   "scripts": {
     "start:prod": "node ./dist/server.js",
