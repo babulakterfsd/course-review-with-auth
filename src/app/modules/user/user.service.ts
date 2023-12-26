@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 import config from '../../config';
-import { TUser } from './user.interface';
+import { TChangePasswordData, TDecodedUser, TUser } from './user.interface';
 import { UserModel } from './user.model';
 
 //create user in DB
@@ -56,8 +56,53 @@ const loginUser = async (user: TUser) => {
 };
 
 // change password
-const changePasswordInDB = async (user: TUser) => {
-  console.log('changePassword : ', user);
+const changePasswordInDB = async (
+  passwordData: TChangePasswordData,
+  user: TDecodedUser,
+) => {
+  const { currentPassword, newPassword } = passwordData;
+
+  const userFromDB = await UserModel.findOne({ email: user?.email });
+
+  if (!userFromDB) {
+    throw new JsonWebTokenError('Unauthorized Access !');
+  }
+
+  const isPasswordMatched = await bcrypt.compare(
+    currentPassword,
+    userFromDB.password,
+  );
+
+  if (!isPasswordMatched) {
+    throw new Error('Current password does not match');
+  }
+
+  // check if new password is different from current password
+  if (currentPassword === newPassword) {
+    throw new Error('New password must be different from current password');
+  }
+
+  // check if new password is minimum 6 characters and consist of letters and numbers both
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+  if (!newPassword.match(passwordRegex)) {
+    throw new Error(
+      'New password must be minimum 6 characters and includes both letters and numbers',
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+  const result = await UserModel.findOneAndUpdate(
+    { email: user?.email },
+    {
+      password: hashedPassword,
+    },
+    {
+      new: true,
+    },
+  );
+
+  return result;
 };
 
 export const UserServices = {

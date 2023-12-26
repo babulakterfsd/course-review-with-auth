@@ -1,6 +1,9 @@
 import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import { TDecodedUser } from './user.interface';
 import { UserServices } from './user.service';
 
 //create user
@@ -38,12 +41,24 @@ const loginUser = catchAsync(async (req, res) => {
 
 //change password
 const changePassword = catchAsync(async (req, res) => {
-  const result = await UserServices.changePasswordInDB(req.body);
+  const passwordData = req.body;
+  const token = req?.headers?.authorization;
+  const splittedToken = token?.split(' ')[1] as string;
+
+  const decodedUser = jwt.verify(
+    splittedToken,
+    config.jwt_access_secret as string,
+  );
+
+  const result = await UserServices.changePasswordInDB(
+    passwordData,
+    decodedUser as TDecodedUser,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'User password has been changed succesfully',
+    message: 'Password has been changed succesfully',
     data: result,
   });
 });

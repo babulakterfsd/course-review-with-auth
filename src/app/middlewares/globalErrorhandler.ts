@@ -50,6 +50,21 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
       return `${errorSource.path} ${errorSource.message}`;
     });
     errorMessage = generatedErrorMessage.join(', ');
+  } else if (
+    err?.name === 'TokenExpiredError' ||
+    err?.name === 'JsonWebTokenError' ||
+    err?.name === 'NotBeforeError'
+  ) {
+    statusCode = 401;
+    message = 'Unauthorized Access !';
+    errorSources = [
+      {
+        path: '',
+        message: '',
+      },
+    ];
+    errorMessage =
+      'You do not have the necessary permissions to access this resource.';
   } else if (err?.code === 11000) {
     const simplifiedError = handleDuplicateError(err);
     statusCode = simplifiedError?.statusCode;
@@ -78,6 +93,20 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
       },
     ];
     errorMessage = err?.message;
+  }
+
+  if (
+    err?.name === 'TokenExpiredError' ||
+    err?.name === 'JsonWebTokenError' ||
+    err?.name === 'NotBeforeError'
+  ) {
+    return res.status(statusCode).json({
+      success: false,
+      message,
+      errorMessage,
+      errorDetails: null,
+      stack: null,
+    });
   }
 
   return res.status(statusCode).json({

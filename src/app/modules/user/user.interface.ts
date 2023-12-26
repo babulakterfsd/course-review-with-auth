@@ -9,6 +9,19 @@ export type TUser = {
   role: 'user' | 'admin';
 };
 
+export type TChangePasswordData = {
+  currentPassword: string;
+  newPassword: string;
+};
+
+export type TDecodedUser = {
+  id: string;
+  role: string;
+  email: string;
+  iat: number;
+  exp: number;
+};
+
 //for creating statics
 export interface TUserModel extends Model<TUser> {
   isUserExistsWithUsername(username: string): Promise<TUser | null>;
