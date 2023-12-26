@@ -1,12 +1,18 @@
 /* eslint-disable no-unused-vars */
 import { Model } from 'mongoose';
 
+export type TLastPassword = {
+  oldPassword: string;
+  changedAt: Date;
+};
+
 export type TUser = {
   _id: string;
   username: string;
   email: string;
   password: string;
   role: 'user' | 'admin';
+  lastTwoPasswords?: TLastPassword[];
 };
 
 export type TChangePasswordData = {

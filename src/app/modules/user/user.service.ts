@@ -1,7 +1,13 @@
+/* eslint-disable no-unsafe-optional-chaining */
 import bcrypt from 'bcrypt';
 import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 import config from '../../config';
-import { TChangePasswordData, TDecodedUser, TUser } from './user.interface';
+import {
+  TChangePasswordData,
+  TDecodedUser,
+  TLastPassword,
+  TUser,
+} from './user.interface';
 import { UserModel } from './user.model';
 
 //create user in DB
@@ -62,40 +68,77 @@ const changePasswordInDB = async (
 ) => {
   const { currentPassword, newPassword } = passwordData;
 
+  // check if the user exists in the database
   const userFromDB = await UserModel.findOne({ email: user?.email });
-
   if (!userFromDB) {
-    throw new JsonWebTokenError('Unauthorized Access !');
+    throw new JsonWebTokenError('Unauthorized Access!');
   }
 
+  // check if the current password the user gave is correct
   const isPasswordMatched = await bcrypt.compare(
     currentPassword,
     userFromDB.password,
   );
-
   if (!isPasswordMatched) {
     throw new Error('Current password does not match');
   }
 
-  // check if new password is different from current password
-  if (currentPassword === newPassword) {
-    throw new Error('New password must be different from current password');
+  // Check if new password is the same as the current one
+  const isSameAsCurrent = currentPassword === newPassword;
+  if (isSameAsCurrent) {
+    throw new Error('New password must be different from the current password');
   }
 
-  // check if new password is minimum 6 characters and consist of letters and numbers both
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
-  if (!newPassword.match(passwordRegex)) {
+  // Check if the new password is the same as the last two passwords
+  const isSameAsLastTwoPasswords = userFromDB?.lastTwoPasswords?.some(
+    (password: TLastPassword) => {
+      return bcrypt.compareSync(newPassword, password.oldPassword);
+    },
+  );
+
+  if (isSameAsLastTwoPasswords) {
+    const lastUsedDate = userFromDB?.lastTwoPasswords?.[0]?.changedAt;
+    const formattedLastUsedDate = lastUsedDate
+      ? new Date(lastUsedDate).toLocaleString()
+      : 'unknown';
+
     throw new Error(
-      'New password must be minimum 6 characters and includes both letters and numbers',
+      `Password change failed. Ensure the new password is unique and not among the last 2 used (last used on ${formattedLastUsedDate}).`,
     );
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  // Check if the new password meets the minimum requirements
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+  if (!newPassword.match(passwordRegex)) {
+    throw new Error(
+      'New password must be minimum 6 characters and include both letters and numbers',
+    );
+  }
+
+  // Update the password and keep track of the last two passwords
+  const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+
+  const newLastTwoPasswords = () => {
+    if (userFromDB?.lastTwoPasswords?.length === 0) {
+      return [{ oldPassword: userFromDB?.password, changedAt: new Date() }];
+    } else if (userFromDB?.lastTwoPasswords?.length === 1) {
+      return [
+        ...userFromDB?.lastTwoPasswords,
+        { oldPassword: userFromDB?.password, changedAt: new Date() },
+      ];
+    } else if (userFromDB?.lastTwoPasswords?.length === 2) {
+      return [
+        userFromDB?.lastTwoPasswords[1],
+        { oldPassword: userFromDB?.password, changedAt: new Date() },
+      ];
+    }
+  };
 
   const result = await UserModel.findOneAndUpdate(
     { email: user?.email },
     {
-      password: hashedPassword,
+      password: hashedNewPassword,
+      lastTwoPasswords: newLastTwoPasswords(),
     },
     {
       new: true,

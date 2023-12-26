@@ -46,12 +46,19 @@ const userSchema = new Schema<TUser, TUserModel>(
       },
       default: 'user',
     },
+    lastTwoPasswords: [
+      {
+        oldPassword: String,
+        changedAt: Date,
+      },
+    ],
   },
   {
     timestamps: true,
     toJSON: {
       transform(doc, ret) {
         delete ret.password;
+        delete ret.lastTwoPasswords;
       },
     },
   },

@@ -17,6 +17,26 @@ export const userSchema = z.object({
     invalid_type_error: ' must be either "user" or "admin"',
     required_error: ' is required',
   }),
+  lastTwoPasswords: z
+    .array(
+      z
+        .object({
+          oldPassword: z
+            .string({
+              invalid_type_error: ' must be string',
+              required_error: ' is required',
+            })
+            .optional(),
+          changedAt: z
+            .date({
+              invalid_type_error: ' must be a valid date',
+              required_error: ' is required',
+            })
+            .optional(),
+        })
+        .optional(),
+    )
+    .optional(),
 });
 
 export const loginSchema = z.object({
