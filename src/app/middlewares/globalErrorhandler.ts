@@ -109,6 +109,20 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     });
   }
 
+  if (
+    message === 'Current password does not match' ||
+    message === 'New password must be different from current password' ||
+    message ===
+      'New password must be minimum 6 characters and includes both letters and numbers'
+  ) {
+    return res.status(statusCode).json({
+      success: false,
+      statusCode,
+      message,
+      data: null,
+    });
+  }
+
   return res.status(statusCode).json({
     success: false,
     statusCode,
