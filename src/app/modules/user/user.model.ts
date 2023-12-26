@@ -75,15 +75,15 @@ userSchema.post<TUser>('save', function (doc, next) {
 });
 
 //custom static method to check if the user exists or not
-userSchema.statics.isUserExists = async function (
+userSchema.statics.isUserExistsWithUsername = async function (
   username: string,
-  email: string,
 ) {
   const userFoundWithUsername = await UserModel.findOne({ username });
+  return userFoundWithUsername;
+};
+userSchema.statics.isUserExistsWithEmail = async function (email: string) {
   const userFoundWithEmail = await UserModel.findOne({ email });
-  const userFound = userFoundWithUsername || userFoundWithEmail;
-
-  return userFound;
+  return userFoundWithEmail;
 };
 
 export const UserModel = model<TUser, TUserModel>('users', userSchema);

@@ -3,12 +3,15 @@ import { UserModel } from './user.model';
 
 //create user in DB
 const registerUserInDB = async (user: TUser) => {
-  const isUserExists = await UserModel.isUserExists(
+  const isUserExistsWithUsername = await UserModel.isUserExistsWithUsername(
     user?.username,
+  );
+
+  const isUserExistsWithEmail = await UserModel.isUserExistsWithEmail(
     user?.email,
   );
 
-  if (isUserExists) {
+  if (isUserExistsWithUsername || isUserExistsWithEmail) {
     throw new Error(
       'User with same username or email already exists, try with different username or email',
     );
