@@ -10,7 +10,9 @@ async function main() {
     await mongoose.connect(config.database_url as string);
 
     server = app.listen(config.port, () => {
-      console.log(`Connected to server and app is listening to port ${config.port}`);
+      console.log(
+        `Connected to server and app is listening to port ${config.port}`,
+      );
     });
   } catch (err) {
     console.log(err);
@@ -21,7 +23,9 @@ main();
 
 //if any error happens in async code, it will be caught here
 process.on('unhandledRejection', () => {
-  console.log(`unahandledRejection is detected , course review server is shutting down ...`);
+  console.log(
+    `unahandledRejection is detected , course review server is shutting down ...`,
+  );
   if (server) {
     server.close(() => {
       process.exit(1);
@@ -32,6 +36,8 @@ process.on('unhandledRejection', () => {
 
 //if any error happens in sync code, it will be caught here
 process.on('uncaughtException', () => {
-  console.log(`uncaughtException is detected , course review server is shutting down ...`);
+  console.log(
+    `uncaughtException is detected , course review server is shutting down ...`,
+  );
   process.exit(1);
 });
