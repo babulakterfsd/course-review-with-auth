@@ -18,12 +18,21 @@ const createUser = catchAsync(async (req, res) => {
 //login user
 const loginUser = catchAsync(async (req, res) => {
   const result = await UserServices.loginUser(req.body);
+  const { accesstoken, userFromDB } = result;
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User has been logged in succesfully',
-    data: result,
+    data: {
+      user: {
+        _id: userFromDB?._id,
+        username: userFromDB?.username,
+        email: userFromDB?.email,
+        role: userFromDB?.role,
+      },
+      token: accesstoken,
+    },
   });
 });
 

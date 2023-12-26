@@ -1,3 +1,6 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
 import { TUser } from './user.interface';
 import { UserModel } from './user.model';
 
@@ -23,7 +26,33 @@ const registerUserInDB = async (user: TUser) => {
 
 // login user
 const loginUser = async (user: TUser) => {
-  console.log('loginUser : ', user);
+  const userFromDB = await UserModel.isUserExistsWithUsername(user?.username);
+  if (!userFromDB) {
+    throw new Error('No user found with this username');
+  }
+  const isPasswordMatched = await bcrypt.compare(
+    user?.password,
+    userFromDB.password,
+  );
+  if (!isPasswordMatched) {
+    throw new Error('Incorrect password');
+  }
+
+  //create token and send it to client side
+  const payload = {
+    id: userFromDB?._id,
+    role: userFromDB?.role,
+    email: userFromDB?.email,
+  };
+
+  const accesstoken = jwt.sign(payload, config.jwt_access_secret as string, {
+    expiresIn: config.jwt_access_expires_in,
+  });
+
+  return {
+    accesstoken,
+    userFromDB,
+  };
 };
 
 // change password
