@@ -1,7 +1,9 @@
+import bcrypt from 'bcrypt';
 import { Schema, model } from 'mongoose';
-import { TUser } from './user.interface';
+import config from '../../config';
+import { TUser, TUserModel } from './user.interface';
 
-const userSchema = new Schema<TUser>(
+const userSchema = new Schema<TUser, TUserModel>(
   {
     username: {
       type: String,
@@ -47,7 +49,41 @@ const userSchema = new Schema<TUser>(
   },
   {
     timestamps: true,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret.password;
+      },
+    },
   },
 );
 
-export const UserModel = model<TUser>('users', userSchema);
+// hashing the password before saving it to the database
+userSchema.pre<TUser>('save', async function (next) {
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  next();
+});
+
+// another layer of making sure that the password is not returned in the response
+userSchema.post<TUser>('save', function (doc, next) {
+  doc.password = '';
+
+  next();
+});
+
+//custom static method to check if the user exists or not
+userSchema.statics.isUserExists = async function (
+  username: string,
+  email: string,
+) {
+  const userFoundWithUsername = await UserModel.findOne({ username });
+  const userFoundWithEmail = await UserModel.findOne({ email });
+  const userFound = userFoundWithUsername || userFoundWithEmail;
+
+  return userFound;
+};
+
+export const UserModel = model<TUser, TUserModel>('users', userSchema);
