@@ -3,8 +3,8 @@ import AppError from '../../errors/AppError';
 import { TCategory } from './category.interface';
 import { CategoryModel } from './category.model';
 
-const createCategoryInDB = async (category: TCategory) => {
-  const result = await CategoryModel.create(category);
+const createCategoryInDB = async (requestBody: TCategory) => {
+  const result = await CategoryModel.create(requestBody);
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create category');
   } else {

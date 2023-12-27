@@ -9,6 +9,11 @@ const categorySchema = new Schema<TCategory, TCategoryModel>(
       trim: true,
       unique: true,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+      required: true,
+    },
   },
   {
     timestamps: true,

@@ -15,6 +15,8 @@ export type TUser = {
   lastTwoPasswords?: TLastPassword[];
 };
 
+export type TUserRole = 'user' | 'admin' | ['user', 'admin'];
+
 export type TChangePasswordData = {
   currentPassword: string;
   newPassword: string;

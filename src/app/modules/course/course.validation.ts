@@ -56,6 +56,12 @@ export const courseSchema = z.object({
       required_error: ' description is required',
     }),
   }),
+  createdBy: z
+    .string({
+      invalid_type_error: ' must be string',
+      required_error: ' is required',
+    })
+    .optional(),
 });
 
 export const courseDataToBeUpdatedSchema = z.object({

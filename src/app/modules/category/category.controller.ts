@@ -5,11 +5,17 @@ import sendResponse from '../../utils/sendResponse';
 import { CategoryServices } from './category.service';
 
 const createCategory = catchAsync(async (req, res) => {
-  const result = await CategoryServices.createCategoryInDB(req.body);
+  // organize category name and createdBy from the request
+  const requestBody = {
+    name: req?.body?.name,
+    createdBy: req?.user?.id,
+  };
+
+  const result = await CategoryServices.createCategoryInDB(requestBody);
 
   sendResponse(res, {
-    statusCode: httpStatus.CREATED,
     success: true,
+    statusCode: httpStatus.CREATED,
     message: 'Category has been created succesfully',
     data: result,
   });

@@ -23,6 +23,11 @@ const reviewSchema = new Schema<TReview>(
       required: true,
       trim: true,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+      required: true,
+    },
   },
   {
     timestamps: true,

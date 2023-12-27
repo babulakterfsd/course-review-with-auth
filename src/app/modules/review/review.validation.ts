@@ -19,4 +19,11 @@ export const reviewSchema = z.object({
     invalid_type_error: ' must be string',
     required_error: ' is required',
   }),
+
+  createdBy: z
+    .string({
+      invalid_type_error: ' must be string',
+      required_error: ' is required',
+    })
+    .optional(),
 });
