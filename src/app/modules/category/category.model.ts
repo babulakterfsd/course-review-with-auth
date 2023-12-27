@@ -20,7 +20,7 @@ const categorySchema = new Schema<TCategory, TCategoryModel>(
   },
 );
 
-//checking if the categoryId really exists or not, for the course to be created
+//checking if the categoryId really exists or not, for the course to be created.
 categorySchema.statics.isCategoryIdExists = async function (
   categoryId: string,
 ) {
