@@ -13,11 +13,20 @@ const createCategoryInDB = async (requestBody: TCategory) => {
 };
 
 const getAllCategoriesFromDB = async () => {
-  const result = await CategoryModel.find();
+  const result = await CategoryModel.find()
+    .populate({
+      path: 'createdBy',
+      model: 'users',
+      select: '_id username email role',
+    })
+    .exec();
+
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to retrieve categories');
   } else {
-    return result;
+    return {
+      categories: result,
+    };
   }
 };
 
