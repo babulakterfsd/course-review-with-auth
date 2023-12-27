@@ -5,7 +5,13 @@ import { CourseServices } from './course.service';
 
 //create course
 const createCourse = catchAsync(async (req, res) => {
-  const result = await CourseServices.createCourseInDB(req.body);
+  // organize category name and createdBy from the request
+  const courseDataWithUserInfo = {
+    ...req?.body,
+    createdBy: req?.user?.id,
+  };
+
+  const result = await CourseServices.createCourseInDB(courseDataWithUserInfo);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
