@@ -145,7 +145,13 @@ const getAllCoursesFromDB = async (query: any) => {
   const result = await CourseModel.find(filter)
     .sort(sortCheck)
     .skip(skip)
-    .limit(limitToBeFetched);
+    .limit(limitToBeFetched)
+    .populate({
+      path: 'createdBy',
+      model: 'users',
+      select: '_id username email role',
+    })
+    .exec();
 
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to get courses');
