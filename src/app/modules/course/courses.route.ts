@@ -12,13 +12,16 @@ router.put(
   validateRequest(courseDataToBeUpdatedSchema),
   CourseControllers.updateCourse,
 );
+
 router.get('/:courseId/reviews', CourseControllers.getSingleCourseWithReviews);
+
 router.post(
   '/',
   auth('admin'),
   validateRequest(courseSchema),
   CourseControllers.createCourse,
 );
+
 router.get('/', CourseControllers.getAllCourses);
 
 export const CoursesRoutes = router;
