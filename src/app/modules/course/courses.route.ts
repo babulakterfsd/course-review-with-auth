@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.put(
   '/:courseId',
+  auth('admin'),
   validateRequest(courseDataToBeUpdatedSchema),
   CourseControllers.updateCourse,
 );

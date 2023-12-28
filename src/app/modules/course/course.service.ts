@@ -234,6 +234,7 @@ const updateCourseInDB = async (
       durationInWeeks: course.durationInWeeks,
       language: course.language,
       provider: course.provider,
+      createdBy: course.createdBy,
       details: {
         level: course.details.level,
         description: course.details.description,
@@ -249,12 +250,22 @@ const updateCourseInDB = async (
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update course');
   } else {
+    const getPopulatedVersionOfTheUpdatedCourse = await CourseModel.findById(
+      courseId,
+    )
+      .populate({
+        path: 'createdBy',
+        model: 'users',
+        select: '_id username email role',
+      })
+      .exec();
+
     // Calculate duration in weeks
     const { startDate, endDate } = result;
     const durationInWeeks = calculateWeeksDuration(startDate, endDate);
 
     const resultToBeReturned = {
-      ...result.toJSON(),
+      ...getPopulatedVersionOfTheUpdatedCourse?.toJSON(),
       durationInWeeks,
     };
 
