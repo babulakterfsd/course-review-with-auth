@@ -14,11 +14,11 @@
 
 ### DEMO LOGIN DETAILS
 
-- user
+- (user) :
   username: xpawal
   password: awal123
 
-- admin
+- (admin) :
   username: babulakterfsd
   password: babul123
 
