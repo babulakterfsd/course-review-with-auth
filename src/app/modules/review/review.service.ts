@@ -15,7 +15,15 @@ const createReviewInDB = async (review: TReview) => {
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create review');
   } else {
-    return result;
+    const { _id } = result.toObject();
+    const recentlyCreatedReview = await ReviewModel.findById(_id)
+      .populate({
+        path: 'createdBy',
+        model: 'users',
+        select: '_id username email role',
+      })
+      .exec();
+    return recentlyCreatedReview;
   }
 };
 

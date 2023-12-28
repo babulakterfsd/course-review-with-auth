@@ -13,14 +13,6 @@ const moduleRoutes = [
     route: UserRoutes,
   },
   {
-    path: '/auth',
-    route: UserRoutes,
-  },
-  {
-    path: '/auth',
-    route: UserRoutes,
-  },
-  {
     path: '/categories',
     route: CategoryRoutes,
   },
