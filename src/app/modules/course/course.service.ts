@@ -356,6 +356,14 @@ const getBestCourseFromDB = async () => {
   }
 
   const course = bestCourse[0];
+  const { _id } = course;
+  const populatedBestCourse = await CourseModel.findById(_id)
+    .populate({
+      path: 'createdBy',
+      model: 'users',
+      select: '_id username email role',
+    })
+    .exec();
 
   const formattedData = {
     course: {
@@ -371,6 +379,7 @@ const getBestCourseFromDB = async () => {
       provider: course?.provider,
       durationInWeeks: course?.durationInWeeks,
       details: course?.details,
+      createdBy: populatedBestCourse?.createdBy,
     },
     averageRating: Number(course.averageRating.toFixed(1)),
     reviewCount: course.reviewCount,
