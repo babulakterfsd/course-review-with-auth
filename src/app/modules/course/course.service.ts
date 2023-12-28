@@ -3,7 +3,6 @@
 /* eslint-disable no-unused-vars */
 import httpStatus from 'http-status';
 import AppError from '../../errors/AppError';
-import { TPopulatedCourse } from '../../interface/error';
 import calculateWeeksDuration from '../../utils/calculateWeeksDuration';
 import { CategoryModel } from '../category/category.model';
 import { ReviewModel } from '../review/review.model';
@@ -280,49 +279,45 @@ const getSingleCourseWithReviewsFromDB = async (courseId: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'CourseId does not exist');
   }
 
-  const reviews = await ReviewModel.find({ courseId })
+  const course = await CourseModel.findById(courseId)
     .populate({
-      path: 'courseId',
-      model: CourseModel,
-      select:
-        'title instructor categoryId price tags startDate endDate language provider durationInWeeks details',
+      path: 'createdBy',
+      model: 'users',
+      select: '_id username email role',
+    })
+    .exec();
+
+  if (!course) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Course not found');
+  }
+
+  const reviews = await ReviewModel.find({ courseId: courseId })
+    .populate({
+      path: 'createdBy',
+      model: 'users',
+      select: '_id username email role',
     })
     .exec();
 
   if (!reviews || reviews.length === 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      'No reviews found for the given courseId',
+      'No reviews found for this course',
     );
   }
 
-  const course = reviews[0].courseId as unknown as TPopulatedCourse;
+  const { startDate, endDate } = course;
+  const durationInWeeks = calculateWeeksDuration(startDate, endDate);
 
-  const formattedData = {
-    data: {
-      course: {
-        _id: course._id,
-        title: course?.title,
-        instructor: course?.instructor,
-        categoryId: course?.categoryId,
-        price: course?.price,
-        tags: course?.tags,
-        startDate: course?.startDate,
-        endDate: course?.endDate,
-        language: course?.language,
-        provider: course?.provider,
-        durationInWeeks: course?.durationInWeeks,
-        details: course?.details,
-      },
-      reviews: reviews.map((review) => ({
-        courseId: courseId,
-        rating: review.rating,
-        review: review.review,
-      })),
-    },
+  const courseWithDurationInWeeks = {
+    ...course.toJSON(),
+    durationInWeeks,
   };
 
-  return formattedData;
+  return {
+    course: courseWithDurationInWeeks,
+    reviews,
+  };
 };
 
 //get the best course based on rating

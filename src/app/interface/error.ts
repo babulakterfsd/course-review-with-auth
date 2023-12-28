@@ -22,4 +22,5 @@ export type TPopulatedCourse = {
   provider: string;
   durationInWeeks: number;
   details: string;
+  createdBy?: string;
 };
