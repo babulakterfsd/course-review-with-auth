@@ -22,7 +22,7 @@ const registerUserInDB = async (user: TUser) => {
 
   if (isUserExistsWithUsername || isUserExistsWithEmail) {
     throw new Error(
-      'User with same username or email already exists, try with different username or email',
+      'User with same username or email already exists, please try with different username or email',
     );
   } else {
     const result = await UserModel.create(user);
