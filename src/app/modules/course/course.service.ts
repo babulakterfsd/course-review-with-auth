@@ -290,7 +290,7 @@ const getSingleCourseWithReviewsFromDB = async (courseId: string) => {
   if (!course) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Course not found');
   }
-
+  let noReviewYet = null;
   const reviews = await ReviewModel.find({ courseId: courseId })
     .populate({
       path: 'createdBy',
@@ -300,10 +300,7 @@ const getSingleCourseWithReviewsFromDB = async (courseId: string) => {
     .exec();
 
   if (!reviews || reviews.length === 0) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'No reviews found for this course',
-    );
+    noReviewYet = 'No review yet';
   }
 
   const { startDate, endDate } = course;
@@ -316,7 +313,7 @@ const getSingleCourseWithReviewsFromDB = async (courseId: string) => {
 
   return {
     course: courseWithDurationInWeeks,
-    reviews,
+    reviews: reviews.length > 0 ? reviews : noReviewYet,
   };
 };
 
