@@ -3,6 +3,7 @@
 /* eslint-disable no-unused-vars */
 import { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
+import config from '../config';
 import AppError from '../errors/AppError';
 import handleCastError from '../errors/handleCastError';
 import handleDuplicateError from '../errors/handleDuplicateError';
@@ -130,7 +131,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     message,
     errorMessage,
     errorDetails,
-    stack: err?.stack, // as its assignment, so I am sending stack too even in production. Either, I would remove it from production and will only send in development to debug.
+    stack: config.NODE_ENV === 'development' ? err?.stack : null,
   });
 };
 
