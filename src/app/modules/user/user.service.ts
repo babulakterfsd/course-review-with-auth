@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-unsafe-optional-chaining */
 import bcrypt from 'bcrypt';
 import jwt, { JsonWebTokenError } from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import config from '../../config';
 import {
   TChangePasswordData,
@@ -25,8 +27,28 @@ const registerUserInDB = async (user: TUser) => {
       'User with same username or email already exists, please try with different username or email.',
     );
   } else {
-    const result = await UserModel.create(user);
-    return result;
+    // if there is something needed like multiple write operation should be done in the database same time, we should use transaction and rollback that time. cause, if one operation fails, all the operation will be rollbacked. this is how we can ensure data consistency. either, all the operation will be done or none of them will be done. Though, we don't need transaction here, cause we are doing only one operation here. still, I am implementing it here for learning purpose.
+
+    const session = await mongoose.startSession();
+
+    try {
+      session.startTransaction();
+
+      // transaction - 1
+      const newUser = await UserModel.create([user], { session });
+
+      // now, if we wanted to create another document depending on the newUser (see, newUser is already created on the database), we can do that here. that will be transaction - 2. if transaction - 2 fails, transaction - 1 will be rollbacked. if transaction - 2 succeeds, transaction - 1 will be committed. this is how transaction works. for example : profile document will be created depending on the newUser. if profile creation fails, newUser will be rollbacked. if profile creation succeeds, newUser will be committed.
+      // const newUserProfile = await profileModel.create([newUser], { session }); (this is just an example, we dont have any profile model in this project)
+
+      await session.commitTransaction();
+      await session.endSession();
+
+      return newUser;
+    } catch (err: any) {
+      await session.abortTransaction();
+      await session.endSession();
+      throw new Error(err);
+    }
   }
 };
 
