@@ -1,6 +1,17 @@
-# Assignment 4 - Course Review System With Auth
+# Course Review System With Auth
 
-- technologies: TypeScript, Node.js, Express.js, MongoDB, Mongoose, Zod
+## Features
+
+- Sign up and login with JWT authentication
+- api actions based on user role
+- mongodb agrregation, reference and populate
+- api validation with zod
+- password hashing with bcrypt
+- data consistency with mongoose transaction and rollback
+
+## technologies:
+
+- TypeScript, Node.js, Express.js, MongoDB, Mongoose, Zod, Bcrypt, JWT
 
 ## How to run
 
