@@ -1,3 +1,4 @@
+import 'colors';
 import { Server } from 'http';
 import mongoose from 'mongoose';
 import app from './app';
@@ -11,7 +12,8 @@ async function main() {
 
     server = app.listen(config.port, () => {
       console.log(
-        `Connected to server and app is listening to port ${config.port}`,
+        `Connected to server and app is listening to port ${config.port}`
+          .rainbow.bold,
       );
     });
   } catch (err) {
