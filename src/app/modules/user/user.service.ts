@@ -43,7 +43,7 @@ const registerUserInDB = async (user: TUser) => {
       await session.commitTransaction();
       await session.endSession();
 
-      return newUser;
+      return newUser[0];
     } catch (err: any) {
       await session.abortTransaction();
       await session.endSession();
