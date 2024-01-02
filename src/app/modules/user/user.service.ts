@@ -43,6 +43,10 @@ const registerUserInDB = async (user: TUser) => {
       await session.commitTransaction();
       await session.endSession();
 
+      if (newUser.length < 1) {
+        throw new Error('User registration failed');
+      }
+
       return newUser[0];
     } catch (err: any) {
       await session.abortTransaction();
