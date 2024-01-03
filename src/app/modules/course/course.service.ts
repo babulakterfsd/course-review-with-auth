@@ -377,6 +377,8 @@ const getBestCourseFromDB = async () => {
       durationInWeeks: course?.durationInWeeks,
       details: course?.details,
       createdBy: populatedBestCourse?.createdBy,
+      createdAt: course?.createdAt,
+      updatedAt: course?.updatedAt,
     },
     averageRating: Number(course.averageRating.toFixed(1)),
     reviewCount: course.reviewCount,
