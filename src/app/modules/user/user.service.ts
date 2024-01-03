@@ -100,6 +100,24 @@ const changePasswordInDB = async (
     throw new JsonWebTokenError('Unauthorized Access!');
   }
 
+  const currentAccesstokenIssuedAt = user?.iat * 1000;
+
+  let lastPasswordChangedAt: Date | number = userFromDB?.lastTwoPasswords?.[1]
+    ?.changedAt
+    ? (userFromDB?.lastTwoPasswords?.[1]?.changedAt as Date)
+    : (userFromDB?.lastTwoPasswords?.[0]?.changedAt as Date);
+
+  //convert lastPasswordChangedAt to miliseconds
+  lastPasswordChangedAt = new Date(lastPasswordChangedAt as Date).getTime();
+
+  if (userFromDB?.lastTwoPasswords?.length === 0) {
+    lastPasswordChangedAt = (userFromDB?.createdAt as Date).getTime();
+  }
+
+  if (currentAccesstokenIssuedAt < lastPasswordChangedAt) {
+    throw new JsonWebTokenError('Unauthorized Access!');
+  }
+
   // check if the current password the user gave is correct
   const isPasswordMatched = await bcrypt.compare(
     currentPassword,

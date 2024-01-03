@@ -13,6 +13,7 @@ export type TUser = {
   password: string;
   role: 'user' | 'admin';
   lastTwoPasswords?: TLastPassword[];
+  createdAt?: Date;
 };
 
 export type TUserRole = 'user' | 'admin' | ['user', 'admin'];
